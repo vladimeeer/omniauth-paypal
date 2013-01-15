@@ -14,7 +14,14 @@ module OmniAuth
 
       option :authorize_options, [:scope, :response_type]
 
-      uid { @parsed_uid ||= (/\/(\w+)\z/.match raw_info['user_id'])[1] } #https://www.paypal.com/webapps/auth/identity/user/baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw => baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw
+      uid {
+        Rails.logger.debug '=====uid call====='
+        Rails.logger.debug '=====uid raw_info====='
+        Rails.logger.debug raw_info.to_yaml
+        Rails.logger.debug "=====uid raw_info['user_id']====="
+        Rails.logger.debug raw_info['user_id'].to_yaml
+        @parsed_uid ||= (/\/([\w]+)\z/.match raw_info['user_id'])[1]
+      } #https://www.paypal.com/webapps/auth/identity/user/baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw => baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw
     
       info do
         prune!({
@@ -41,18 +48,25 @@ module OmniAuth
       end
 
       def raw_info
+        Rails.logger.debug 'row info call'
         @raw_info ||= load_identity()
+        Rails.logger.debug '=====raw info======'
+        Rails.logger.debug @raw_info.to_yaml
+        @raw_info
       end
 
       def authorize_params
         super.tap do |params|
           params[:scope] ||= DEFAULT_SCOPE
           params[:response_type] ||= DEFAULT_RESPONSE_TYPE
+          Rails.logger.debug '=====authorize_params======'
+          Rails.logger.debug params.to_yaml
         end
       end
 
       private
         def load_identity
+          Rails.logger.debug '=====loading identity======'
           access_token.options[:mode] = :query
           access_token.options[:param_name] = :access_token
           access_token.options[:grant_type] = :authorization_code
