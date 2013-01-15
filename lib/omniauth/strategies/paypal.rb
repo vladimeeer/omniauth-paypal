@@ -20,9 +20,9 @@ module OmniAuth
         Rails.logger.debug raw_info.to_yaml
         Rails.logger.debug "=====uid raw_info['user_id']====="
         Rails.logger.debug raw_info['user_id'].to_yaml
-        @parsed_uid ||= (/\/([\w]+)\z/.match raw_info['user_id'])[1]
+        @parsed_uid ||= (/\/([^/]+)\z/.match raw_info['user_id'])[1]
       } #https://www.paypal.com/webapps/auth/identity/user/baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw => baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw
-    
+
       info do
         prune!({
                    'name' => raw_info['name'],
