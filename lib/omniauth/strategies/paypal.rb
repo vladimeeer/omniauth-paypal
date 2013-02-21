@@ -11,7 +11,8 @@ module OmniAuth
         :authorize_url => '/webapps/auth/protocol/openidconnect/v1/authorize',
         :token_url     => '/webapps/auth/protocol/openidconnect/v1/tokenservice'
       }
-
+      
+      option :name, 'paypal'
       option :authorize_options, [:scope, :response_type]
       option :provider_ignores_state, true
 
