@@ -66,6 +66,33 @@ module OmniAuth
             value.nil? || (value.respond_to?(:empty?) && value.empty?)
           end
         end
+        
+        #testing purpose
+        def callback_phase
+          if request.params['error'] || request.params['error_reason']
+            raise CallbackError.new(request.params['error'], request.params['error_description'] || request.params['error_reason'], request.params['error_uri'])
+          end
+          
+          @access_token = build_access_token
+          
+          puts "I am here. Access token is #{@access_token.inspect}"
+          
+          if @access_token.expires? && @access_token.expires_in <= 0
+            client.request(:post, client.access_token_url, { 
+                'client_id' => client_id,
+                'grant_type' => 'refresh_token', 
+                'client_secret' => client_secret,
+                'refresh_token' => @access_token.refresh_token 
+              }.merge(options))
+            @access_token = client.web_server.get_access_token(verifier, {:redirect_uri => callback_url}.merge(options))
+          end
+          
+          super
+        rescue ::OAuth2::HTTPError, ::OAuth2::AccessDenied, CallbackError => e
+          fail!(:invalid_credentials, e)
+        rescue ::MultiJson::DecodeError => e
+          fail!(:invalid_response, e)
+        end
 
     end
   end
