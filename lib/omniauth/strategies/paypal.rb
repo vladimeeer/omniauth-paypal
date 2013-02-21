@@ -12,7 +12,7 @@ module OmniAuth
         :token_url     => '/webapps/auth/protocol/openidconnect/v1/tokenservice'
       }
 
-      option :authorize_options, [:scope, :response_type]
+      option :authorize_options, [:scope, :response_type, :client_id]
 
       uid { @parsed_uid ||= (/\/([^\/]+)\z/.match raw_info['user_id'])[1] } #https://www.paypal.com/webapps/auth/identity/user/baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw => baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw
     
