@@ -12,7 +12,7 @@ module OmniAuth
         :token_url     => '/webapps/auth/protocol/openidconnect/v1/tokenservice'
       }
 
-      option :authorize_options, [:scope, :response_type, :client_id]
+      option :authorize_options, [:scope, :response_type]
       option :provider_ignores_state, true
 
       uid { @parsed_uid ||= (/\/([^\/]+)\z/.match raw_info['user_id'])[1] } #https://www.paypal.com/webapps/auth/identity/user/baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw => baCNqjGvIxzlbvDCSsfhN3IrQDtQtsVr79AwAjMxekw
@@ -49,7 +49,6 @@ module OmniAuth
         super.tap do |params|
           params[:scope] ||= DEFAULT_SCOPE
           params[:response_type] ||= DEFAULT_RESPONSE_TYPE
-          params[:client_id]
         end
       end
 
@@ -66,33 +65,6 @@ module OmniAuth
             prune!(value) if value.is_a?(Hash)
             value.nil? || (value.respond_to?(:empty?) && value.empty?)
           end
-        end
-        
-        #testing purpose
-        def callback_phase
-          if request.params['error'] || request.params['error_reason']
-            raise CallbackError.new(request.params['error'], request.params['error_description'] || request.params['error_reason'], request.params['error_uri'])
-          end
-          
-          @access_token = build_access_token
-          
-          puts "I am here. Access token is #{@access_token.inspect}"
-          
-          if @access_token.expires? && @access_token.expires_in <= 0
-            client.request(:post, client.access_token_url, { 
-                'client_id' => client_id,
-                'grant_type' => 'refresh_token', 
-                'client_secret' => client_secret,
-                'refresh_token' => @access_token.refresh_token 
-              }.merge(options))
-            @access_token = client.web_server.get_access_token(verifier, {:redirect_uri => callback_url}.merge(options))
-          end
-          
-          super
-        rescue ::OAuth2::HTTPError, ::OAuth2::AccessDenied, CallbackError => e
-          fail!(:invalid_credentials, e)
-        rescue ::MultiJson::DecodeError => e
-          fail!(:invalid_response, e)
         end
 
     end
