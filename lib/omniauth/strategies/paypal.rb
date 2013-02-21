@@ -48,6 +48,7 @@ module OmniAuth
         super.tap do |params|
           params[:scope] ||= DEFAULT_SCOPE
           params[:response_type] ||= DEFAULT_RESPONSE_TYPE
+          params[:client_id]
         end
       end
 
